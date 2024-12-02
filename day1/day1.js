@@ -28,7 +28,27 @@ const getTotalDistance = () => {
       total += Math.abs(val2 - val1);
     }
 
-    console.log(total);
+    console.log("Distance total:", total);
+
+    // get similarity score
+
+    function findNumber(num) {
+      const count = list2.reduce((acc, cur) => {
+        const count = cur === num ? 1 : 0;
+        return acc + count;
+      }, 0);
+
+      return count;
+    }
+
+    let similarityScore = 0;
+    for (let i = 0; i < list1.length; i++) {
+      const val = list1[i];
+      const score = findNumber(val);
+      similarityScore += score * val;
+    }
+
+    console.log("score:", similarityScore);
   });
 };
 
