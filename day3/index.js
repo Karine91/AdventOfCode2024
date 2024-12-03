@@ -6,7 +6,7 @@ fs.readFile(path.resolve(__dirname, "input.txt"), "utf8", (err, data) => {
     console.log(err);
   } else {
     console.time("start");
-    const res = getAllMultiplications(data);
+    const res = getAllMultiplications2(data);
 
     console.log("Result: ", res);
     console.timeEnd("start");
@@ -29,4 +29,18 @@ function getAllMultiplications(str) {
 const testInput =
   "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
 
-console.log(getAllMultiplications(testInput));
+// console.log(getAllMultiplications(testInput));
+
+// part 2
+function getAllMultiplications2(str) {
+  const line = str.replaceAll(/\n/g, "");
+  const regexp = /(don't\(\)(.+?)do\(\))|(don't()(.+?)$)/g;
+  const newstr = line.replaceAll(regexp, "");
+
+  return getAllMultiplications(newstr);
+}
+
+const testInput2 =
+  "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)un\ndo()?mul(8,5))xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))don't()_mul(5,5)+mul(32,64](mul(11,8)un?mul(8,5))do()don't()_mul(5,5)+mul(32,64](mul(11,8)un?mul(8,5))";
+
+console.log(getAllMultiplications2(testInput2));
