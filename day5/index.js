@@ -26,6 +26,7 @@ function printQueue(data) {
   });
 
   const correct = [];
+  const incorrect = [];
 
   const updatesLines = updates.split("\n");
   updatesLines.forEach((update) => {
@@ -44,16 +45,28 @@ function printQueue(data) {
 
     if (update === updatesArr.join(",")) {
       correct.push(updatesArr);
+    } else {
+      incorrect.push(updatesArr);
     }
   });
 
-  let result = 0;
-  correct.forEach((item) => {
-    const mid = Math.floor(item.length / 2);
-    result += Number(item[mid]);
-  });
+  function getMidSum(arr) {
+    let result = 0;
+    arr.forEach((item) => {
+      const mid = Math.floor(item.length / 2);
+      result += Number(item[mid]);
+    });
 
-  return result;
+    return result;
+  }
+
+  const correctRes = getMidSum(correct);
+  const incorrectRes = getMidSum(incorrect);
+
+  return {
+    correct: correctRes,
+    incorrect: incorrectRes,
+  };
 }
 
 const testInput = `47|53
