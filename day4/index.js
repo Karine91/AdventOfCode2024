@@ -6,8 +6,7 @@ fs.readFile(path.resolve(__dirname, "input.txt"), "utf8", (err, data) => {
     console.log(err);
   } else {
     console.time("start");
-    const res = getAllXMAS(data);
-
+    const res = getAllX_MAS(data);
     console.log("Result: ", res);
     console.timeEnd("start");
   }
@@ -79,4 +78,70 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX`;
 
-console.log(getAllXMAS(testInput));
+// console.log(getAllXMAS(testInput));
+
+// part 2
+function getAllX_MAS(data) {
+  const lines = data.split("\n");
+  let count = 0;
+
+  const dirs = [
+    [
+      [-1, -1],
+      [1, 1],
+    ], // up-left - down-right
+    [
+      [-1, 1],
+      [1, -1],
+    ], // up-right down-left
+  ];
+
+  function checkDirection(r, c) {
+    if (!(r >= 0 && r < lines.length)) {
+      return false;
+    }
+
+    if (!(c >= 0 && c < lines[r].length)) {
+      return false;
+    }
+
+    return true;
+  }
+
+  function isX_MAS(r, c) {
+    for (let dir of dirs) {
+      let l = "";
+
+      for (let k = 0; k < dir.length; k++) {
+        const newR = r + dir[k][0];
+        const newC = c + dir[k][1];
+        if (checkDirection(newR, newC)) {
+          l += lines[newR][newC];
+        }
+      }
+
+      if (!(l === "MS" || l === "SM")) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    for (let j = 0; j < lines[i].length; j++) {
+      const val = lines[i][j];
+
+      if (val === "A") {
+        const found = isX_MAS(i, j);
+        if (found) {
+          count++;
+        }
+      }
+    }
+  }
+
+  return count;
+}
+
+console.log(getAllX_MAS(testInput));
