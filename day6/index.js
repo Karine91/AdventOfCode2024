@@ -20,10 +20,6 @@ function countGuardPositions(data) {
   let row = Math.floor(start / (lines[0].length + 1));
   let count = 0;
 
-  const visited = Array.from({ length: lines.length }, () =>
-    Array.from({ length: lines[0].length })
-  );
-
   const dirs = [
     [-1, 0], // up
     [0, 1], // right
@@ -77,10 +73,11 @@ function countLoopPositions(data) {
 
   let col = start % (lines[0].length + 1);
   let row = Math.floor(start / (lines[0].length + 1));
+
   let countLoops = 0;
 
   const visited = Array.from({ length: lines.length }, () =>
-    Array.from({ length: lines[0].length })
+    Array.from({ length: lines[0].length }, () => "")
   );
 
   const dirs = [
@@ -103,14 +100,7 @@ function countLoopPositions(data) {
     }
   }
 
-  function go(r, c, dirInd, main, turnPoint) {
-    if (main && visited[r][c] == undefined) {
-      visited[r][c] = dirInd;
-    } else if (!main && dirInd === visited[r][c]) {
-      console.log(turnPoint);
-      countLoops++;
-      return;
-    }
+  function getNextValidPosition(r, c, dirInd, obstaclePos) {
     let newR, newC;
 
     do {
@@ -118,21 +108,84 @@ function countLoopPositions(data) {
       newC = c + dirs[dirInd][1];
 
       if (outOfBoundary(newR, newC)) {
-        return;
+        return false;
       } else {
-        if (lines[newR][newC] === "#") {
+        if (
+          lines[newR][newC] === "#" ||
+          (obstaclePos && newR === obstaclePos.r && newC === obstaclePos.c)
+        ) {
           dirInd = getNextDir(dirInd);
         } else {
-          if (main && lines[newR][newC] !== "^") {
-            go(r, c, getNextDir(dirInd), false, [r, c]);
-          }
-          go(newR, newC, dirInd, main, turnPoint);
+          r = newR;
+          c = newC;
         }
       }
-    } while (lines[newR][newC] === "#");
+    } while (
+      lines[newR][newC] === "#" ||
+      (obstaclePos && newR === obstaclePos.r && newC === obstaclePos.c)
+    );
+
+    return {
+      r,
+      c,
+      dirInd,
+    };
   }
 
-  go(row, col, 0, true);
+  let r = row;
+  let c = col;
+  let dirInd = 0;
+
+  outer: while (true) {
+    if (visited[r][c] === "") {
+      visited[r][c] = dirInd;
+    }
+
+    const result = getNextValidPosition(r, c, dirInd);
+
+    if (!result) break;
+
+    const { r: newR, c: newC, dirInd: nextDirInd } = result;
+    dirInd = nextDirInd;
+
+    if (visited[newR][newC] === "" && lines[newR][newC] !== "^") {
+      // check for loop if turn right
+      const result = getNextValidPosition(r, c, dirInd, {
+        r: newR,
+        c: newC,
+      });
+
+      if (!result) continue;
+
+      let { r: r2, c: c2, dirInd: dirInd2 } = result;
+
+      const visited2 = [...visited.map((item) => [...item])];
+
+      inner: while (true) {
+        if (visited2[r2][c2] === "") {
+          visited2[r2][c2] = dirInd2;
+        } else if (dirInd2 === visited2[r2][c2]) {
+          countLoops++;
+          break inner;
+        }
+
+        const result = getNextValidPosition(r2, c2, dirInd2, {
+          r: newR,
+          c: newC,
+        });
+        if (!result) {
+          break inner;
+        } else {
+          r2 = result.r;
+          c2 = result.c;
+          dirInd2 = result.dirInd;
+        }
+      }
+    }
+
+    r = newR;
+    c = newC;
+  }
 
   return countLoops;
 }
