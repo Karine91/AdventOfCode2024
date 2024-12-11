@@ -31,6 +31,10 @@ function getTotalCalibrationResult(data) {
 
       getResult(ind + 1, result ? result * val : val);
       getResult(ind + 1, result ? result + val : val);
+      getResult(
+        ind + 1,
+        result ? Number(result.toString() + val.toString()) : val
+      );
     }
 
     getResult(0);
