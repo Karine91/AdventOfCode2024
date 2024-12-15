@@ -6,7 +6,7 @@ fs.readFile(path.resolve(__dirname, "input.txt"), "utf8", (err, data) => {
     console.log(err);
   } else {
     console.time("start");
-    const res = getScores(data);
+    const res = getRating(data);
     console.log("Result: ", res);
     console.timeEnd("start");
   }
@@ -63,6 +63,55 @@ function getScores(data) {
   return scoresArr.reduce((a, c) => a + c, 0);
 }
 
+function getRating(data) {
+  const lines = data.split("\n");
+
+  const dirs = [
+    [-1, 0], // up
+    [0, 1], // right
+    [1, 0], // down
+    [0, -1], // left
+  ];
+
+  let ratings = 0;
+
+  function outOfBoundary(r, c) {
+    if (r >= lines.length || r < 0) {
+      return true;
+    }
+    if (c >= lines[r].length || c < 0) {
+      return true;
+    }
+  }
+
+  function findPath(r, c, path) {
+    if (outOfBoundary(r, c)) {
+      return;
+    }
+    if (lines[r][c] == path) {
+      if (path == 9) {
+        ratings++;
+      } else {
+        for (let dir of dirs) {
+          const nR = r + dir[0];
+          const nC = c + dir[1];
+          findPath(nR, nC, Number(path) + 1);
+        }
+      }
+    }
+  }
+
+  for (let row = 0; row < lines.length; row++) {
+    for (let col = 0; col < lines[row].length; col++) {
+      if (lines[row][col] === "0") {
+        findPath(row, col, 0);
+      }
+    }
+  }
+
+  return ratings;
+}
+
 const testInput = `89010123
 78121874
 87430965
@@ -72,4 +121,4 @@ const testInput = `89010123
 01329801
 10456732`;
 
-console.log(getScores(testInput));
+console.log(getRating(testInput));
