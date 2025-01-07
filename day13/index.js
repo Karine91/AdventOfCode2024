@@ -19,23 +19,18 @@ function getMinTokensForPrize(data) {
   const machines = data.split("\n\n");
 
   function getMinTokens({ aX, aY, bX, bY, pX, pY }) {
-    const n =
-      (-(aY * pX * aX * aY) + aX * pY * aX * aY) /
-      ((aX * bY - aY * bX) * (aX * aY));
+    const n = Math.round(
+      (aX * pY * aX * aY - aY * pX * aX * aY) /
+        ((aX * bY - aY * bX) * (aX * aY))
+    );
 
-    const m = (pX - bX * n) / aX;
-    if (
-      (-(aY * pX * aX * aY) + aX * pY * aX * aY) %
-        ((aX * bY - aY * bX) * (aX * aY)) !==
-        0 ||
-      (pX - bX * n) % aX !== 0
-    ) {
+    const m = Math.round((pX - bX * n) / aX);
+
+    // after rounding if equations not right than return false;
+    if (aX * m + bX * n !== pX || aY * m + bY * n !== pY) {
       return false;
     }
 
-    if (m > 100 || n > 100) {
-      return false;
-    }
     return m * tokenA + n * tokenB;
   }
 
@@ -57,7 +52,14 @@ function getMinTokensForPrize(data) {
     const pX = Number(matchesP[1]);
     const pY = Number(matchesP[2]);
 
-    const tokens = getMinTokens({ aX, aY, bX, bY, pX, pY });
+    const tokens = getMinTokens({
+      aX,
+      aY,
+      bX,
+      bY,
+      pX: pX + 10000000000000,
+      pY: pY + 10000000000000,
+    });
     if (tokens) {
       total += tokens;
     }
